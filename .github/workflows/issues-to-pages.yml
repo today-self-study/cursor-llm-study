@@ -1,0 +1,29 @@
+name: Issues to Pages
+
+on:
+  issues:
+    types: [opened, edited, deleted]
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/issues-to-pages.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Convert Issues to Markdown
+        uses: wow-actions/github-issues-to-pages@v1
+        with:
+          output: docs/issues
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and Push
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add docs/issues
+          git commit -m "Sync GitHub Issues to Pages" || echo "No changes"
+          git push 
