@@ -26,23 +26,4 @@ title: cursor-llm-study
 
 ---
 
-## LLM 항목별 벤치마크 차트
-
-### 코딩
-![코딩](/images/llm_barchart_코딩.png)
-
-### 수리
-![수리](/images/llm_barchart_수리.png)
-
-### 추론
-![추론](/images/llm_barchart_추론.png)
-
-### 멀티모달
-![멀티모달](/images/llm_barchart_멀티모달.png)
-
-### 속도/비용
-![속도/비용](/images/llm_barchart_속도_비용.png)
-
----
-
 > 자세한 내용과 rule 예시는 위 이슈 링크를 참고하세요! 
