@@ -68,7 +68,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // GitHub Issues API에서 실시간으로 이슈를 받아와 렌더링
-    fetch('https://api.github.com/repos/today-self-study/cursor-llm-study/issues')
+    fetch('https://api.github.com/repos/today-self-study/cursor-llm-study/issues?state=open')
       .then(res => {
         if (!res.ok) throw new Error('HTTP error ' + res.status);
         return res.json();
