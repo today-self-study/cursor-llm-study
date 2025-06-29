@@ -54,12 +54,16 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // 이슈 데이터 fetch 및 렌더링
-    fetch('issues.json')
-      .then(res => res.json())
+    // 이슈 데이터 fetch 및 렌더링 (진단용 상세 에러 메시지 및 원본 출력 추가)
+    fetch('./issues.json')
+      .then(res => {
+        if (!res.ok) throw new Error('HTTP error ' + res.status);
+        // 진단용: 원본 텍스트도 콘솔에 출력
+        res.clone().text().then(txt => console.log('issues.json 원본:', txt));
+        return res.json();
+      })
       .then(data => {
         let issues = Array.isArray(data) ? data : (Array.isArray(data.issues) ? data.issues : Object.values(data));
-        // 혹시 json이 객체로만 되어있을 때도 대응
         if (!Array.isArray(issues)) {
           issues = Object.values(data);
         }
@@ -83,7 +87,8 @@
         });
       })
       .catch(err => {
-        document.getElementById('issue-list').innerHTML = '<li class="list-group-item text-danger">이슈 데이터를 불러오지 못했습니다.</li>';
+        document.getElementById('issue-list').innerHTML = '<li class="list-group-item text-danger">이슈 데이터를 불러오지 못했습니다.<br>' + err.message + '</li>';
+        console.error('이슈 데이터 fetch/parsing 에러:', err);
       });
   </script>
 </body>
