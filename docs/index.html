@@ -8,26 +8,33 @@
   <style>
     body { background: #f8f9fa; }
     .issue-card {
-      border: none;
-      border-bottom: 1px solid #e9ecef;
-      border-radius: 0;
-      transition: background 0.2s;
+      background: #fff;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: box-shadow 0.2s, border-color 0.2s;
       cursor: pointer;
-      padding: 1rem 0.5rem;
-    }
-    .issue-card:hover {
-      background: #f1f3f5;
-    }
-    .issue-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #222;
-      margin-bottom: 0.25rem;
+      padding: 1.2rem 1.3rem 1.1rem 1.3rem;
+      display: block;
       text-decoration: none;
     }
+    .issue-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+      border-color: #b6c2cf;
+      background: #f6f8fa;
+    }
+    .issue-title {
+      font-weight: 700;
+      font-size: 1.13rem;
+      color: #1a1a1a;
+      margin-bottom: 0.3rem;
+      text-decoration: none;
+      word-break: break-all;
+    }
     .issue-body-preview {
-      color: #555;
-      font-size: 0.97rem;
+      color: #444;
+      font-size: 0.99rem;
       white-space: pre-line;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -35,52 +42,72 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       min-height: 2.5em;
+      margin-bottom: 0.5rem;
+    }
+    .issue-meta {
+      font-size: 0.89rem;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 1.1em;
+    }
+    .issue-meta img {
+      width: 22px; height: 22px; border-radius: 50%; margin-right: 0.4em;
     }
     .container { max-width: 700px; }
-    .list-group { border-radius: 0.5rem; overflow: hidden; }
+    .loading, .error, .empty { color: #888; text-align: center; margin: 2.5em 0; font-size: 1.1rem; }
   </style>
 </head>
 <body>
   <div class="container py-4">
     <h4 class="mb-3">Issues</h4>
-    <div class="list-group" id="issue-list">
-      <div class="list-group-item text-center text-muted">이슈를 불러오는 중...</div>
+    <div id="issue-list">
+      <div class="loading">이슈를 불러오는 중...</div>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // 이슈 데이터 fetch 및 렌더링
-    fetch('./issues.json')
+    // GitHub Issues API에서 실시간으로 이슈를 받아와 렌더링
+    fetch('https://api.github.com/repos/today-self-study/cursor-llm-study/issues')
       .then(res => {
         if (!res.ok) throw new Error('HTTP error ' + res.status);
         return res.json();
       })
-      .then(data => {
-        let issues = Array.isArray(data) ? data : (Array.isArray(data.issues) ? data.issues : Object.values(data));
-        if (!Array.isArray(issues)) {
-          issues = Object.values(data);
-        }
+      .then(issues => {
         const list = document.getElementById('issue-list');
         list.innerHTML = '';
-        if (issues.length === 0) {
-          list.innerHTML = '<div class="list-group-item text-center text-muted">등록된 이슈가 없습니다.</div>';
+        if (!Array.isArray(issues) || issues.length === 0) {
+          list.innerHTML = '<div class="empty">등록된 이슈가 없습니다.</div>';
           return;
         }
         issues.forEach(issue => {
+          // PR은 제외
+          if (issue.pull_request) return;
           const a = document.createElement('a');
-          a.className = 'list-group-item issue-card';
-          a.href = `https://github.com/today-self-study/cursor-llm-study/issues/${issue.number}`;
+          a.className = 'issue-card';
+          a.href = issue.html_url;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
+          // 본문 미리보기(2줄)
+          let preview = (issue.body || '').replace(/\n+/g, ' ').replace(/<[^>]+>/g, '').slice(0, 140);
+          if (issue.body && issue.body.length > 140) preview += '...';
+          // 작성일 포맷
+          const date = new Date(issue.created_at);
+          const dateStr = date.toLocaleDateString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit' });
           a.innerHTML = `
             <div class="issue-title">${issue.title}</div>
-            <div class="issue-body-preview">${(issue.body || '').replace(/\n+/g, ' ').slice(0, 120)}${(issue.body && issue.body.length > 120 ? '...' : '')}</div>
+            <div class="issue-body-preview">${preview}</div>
+            <div class="issue-meta">
+              <span>#${issue.number}</span>
+              <span><img src="${issue.user.avatar_url}" alt="avatar">${issue.user.login}</span>
+              <span>${dateStr}</span>
+            </div>
           `;
           list.appendChild(a);
         });
       })
       .catch(err => {
-        document.getElementById('issue-list').innerHTML = '<div class="list-group-item text-danger">이슈 데이터를 불러오지 못했습니다.<br>' + err.message + '</div>';
+        document.getElementById('issue-list').innerHTML = '<div class="error">이슈 데이터를 불러오지 못했습니다.<br>' + err.message + '</div>';
         console.error('이슈 데이터 fetch/parsing 에러:', err);
       });
   </script>
