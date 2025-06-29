@@ -18,9 +18,9 @@ title: cursor-llm-study
 
 ## 최신 이슈 목록 (자동 반영)
 
-{% for page in site.pages %}
-  {% if page.path contains 'docs/issues/' %}
-- [{{ page.name | remove: '.md' }}]({{ page.url | relative_url }})
+{% for file in site.static_files %}
+  {% if file.path contains 'docs/issues/' and file.extname == '.md' %}
+- [{{ file.name | remove: '.md' }}]({{ file.path | relative_url }})
   {% endif %}
 {% endfor %}
 
