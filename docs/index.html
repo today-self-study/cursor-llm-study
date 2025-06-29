@@ -48,6 +48,9 @@
         <div class="modal-body">
           <div id="issue-body" style="white-space: pre-wrap;"></div>
         </div>
+        <div class="modal-footer">
+          <a id="issue-link" href="#" target="_blank" class="btn btn-primary">전체 이슈 페이지 보기</a>
+        </div>
       </div>
     </div>
   </div>
@@ -80,6 +83,7 @@
           li.onclick = () => {
             document.getElementById('issueModalLabel').textContent = `#${issue.number} - ${issue.title}`;
             document.getElementById('issue-body').textContent = issue.body;
+            document.getElementById('issue-link').href = `https://github.com/today-self-study/cursor-llm-study/issues/${issue.number}`;
             const modal = new bootstrap.Modal(document.getElementById('issueModal'));
             modal.show();
           };
