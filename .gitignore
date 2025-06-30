@@ -140,3 +140,5 @@ cython_debug/
 # Windows
 Thumbs.db
 Desktop.ini 
+
+codes/data/
